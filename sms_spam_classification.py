@@ -172,14 +172,13 @@ nvb.fit(train_x, train_y)
 dec = tree.DecisionTreeClassifier()
 dec.fit(train_x, train_y)
 
-rf = RandomForestClassifier(n_estimators=200)
-rf.fit(train_x, train_y)
+# rf = RandomForestClassifier(n_estimators=200)
+# rf.fit(train_x, train_y)
 
 """**Predictions**"""
 
 pred_nvb = nvb.predict(test_x)
 pred_dec = dec.predict(test_x)
-pred_rf = rf.predict(test_x)
 
 print ("Accuracy : %0.5f \n\n" % accuracy_score(test_y, pred_nvb))
 print (classification_report(test_y, pred_nvb))
@@ -187,8 +186,8 @@ print (classification_report(test_y, pred_nvb))
 print ("Accuracy : %0.5f \n\n" % accuracy_score(test_y, pred_dec))
 print (classification_report(test_y, pred_dec))
 
-print ("Accuracy : %0.5f \n\n" % accuracy_score(test_y, pred_rf))
-print (classification_report(test_y, pred_rf))
+# print ("Accuracy : %0.5f \n\n" % accuracy_score(test_y, pred_rf))
+# print (classification_report(test_y, pred_rf))
 
 """<h1>Final Accuracy</h1>
 
@@ -199,10 +198,95 @@ print (classification_report(test_y, pred_rf))
 *   **Decision Tree : 97.040%**
 *   **GaussianNB : 87.085%**
 
-
-
-
-
-
+<h1>Hyperparameter Tuning for Random Forest</h1>
 """
+
+from sklearn.model_selection import GridSearchCV
+
+params = {
+  'bootstrap': [True, False],
+ 'max_depth': [4, 6, 8, 10, 12, 16, None],
+ 'max_features': ['auto', 'sqrt'],
+ 'n_estimators': [100, 200, 300, 400, 500, 600],
+ }
+random_rf = GridSearchCV(estimator = rf, param_grid = params, cv = 3, verbose=2, n_jobs = -1)
+random_rf.fit(train_x, train_y)
+
+rf = RandomForestClassifier(bootstrap=True, ccp_alpha=0.0,
+                                              class_weight=None,
+                                              criterion='gini', max_depth=None,
+                                              max_features='auto',
+                                              max_leaf_nodes=None,
+                                              max_samples=None,
+                                              min_impurity_decrease=0.0,
+                                              min_impurity_split=None,
+                                              min_samples_leaf=1,
+                                              min_samples_split=2,
+                                              min_weight_fraction_leaf=0.0,
+                                              n_estimators=200, n_jobs=None,
+                                              oob_score=False,
+                                              random_state=None, verbose=0,
+                                              warm_start=False)
+rf.fit(train_x, train_y)
+
+pred_rf = rf.predict(test_x)
+print ("Accuracy : %0.5f \n\n" % accuracy_score(test_y, pred_rf))
+print (classification_report(test_y, pred_rf))
+
+"""Accuracy increased by:
+**0.089%**
+
+<h1> KFold Cross validation</h1>
+"""
+
+from sklearn.model_selection import KFold
+
+kfold = KFold(n_splits=5, random_state=0, shuffle=False)
+
+# preparing a fresh random forest
+rf1 = RandomForestClassifier(bootstrap=True, ccp_alpha=0.0,
+                                              class_weight=None,
+                                              criterion='gini', max_depth=None,
+                                              max_features='auto',
+                                              max_leaf_nodes=None,
+                                              max_samples=None,
+                                              min_impurity_decrease=0.0,
+                                              min_impurity_split=None,
+                                              min_samples_leaf=1,
+                                              min_samples_split=2,
+                                              min_weight_fraction_leaf=0.0,
+                                              n_estimators=200, n_jobs=None,
+                                              oob_score=False,
+                                              random_state=None, verbose=0,
+                                              warm_start=False)
+accuracy = []
+for train_index,test_index in kfold.split(data_input):
+  xtrain,xtest = data_input[train_index], data_input[test_index]
+  ytrain,ytest = data_output[train_index], data_output[test_index]
+
+  rf1 = RandomForestClassifier(bootstrap=True, ccp_alpha=0.0,
+                                              class_weight=None,
+                                              criterion='gini', max_depth=None,
+                                              max_features='auto',
+                                              max_leaf_nodes=None,
+                                              max_samples=None,
+                                              min_impurity_decrease=0.0,
+                                              min_impurity_split=None,
+                                              min_samples_leaf=1,
+                                              min_samples_split=2,
+                                              min_weight_fraction_leaf=0.0,
+                                              n_estimators=200, n_jobs=None,
+                                              oob_score=False,
+                                              random_state=None, verbose=0,
+                                              warm_start=False)
+  rf1.fit(xtrain, ytrain)
+
+  prediction = rf1.predict(xtest)
+  accuracy.append(accuracy_score(ytest, prediction))
+
+accuracy
+
+np.mean(accuracy)
+
+"""*Maximum Accuracy Score:* **97.541%**"""
 
