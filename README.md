@@ -1,4 +1,3 @@
-
 # SMS_spam_classification
 ### Overview:
 
@@ -27,4 +26,3 @@ Python
 
 ### Author:
 <a href="https://github.com/ritvikanandi">Ritvika Nandi</a>
-# SMS_spam_classification
